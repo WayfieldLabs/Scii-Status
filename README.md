@@ -82,12 +82,18 @@ The checker requests each URL and treats a `2xx` response as up. Checks run ever
 
 Set these variables on the `scii` Worker:
 
-| Variable        | Default                |
-| --------------- | ---------------------- |
-| `SITE_NAME`     | `Scii Status`          |
-| `SITE_URL`      | `https://wayfield.dev` |
-| `GROUP_NAME`    | `Status`             |
-| `CONTACT_EMAIL` | `hello@wayfield.dev`   |
+| Variable            | Default                |
+| ------------------- | ---------------------- |
+| `SITE_NAME`         | `Scii Status`          |
+| `SITE_URL`          | `https://wayfield.dev` |
+| `GROUP_NAME`        | `Status`               |
+| `CONTACT_EMAIL`     | `hello@wayfield.dev`   |
+| `SOURCE_URL`        | Scii Status GitHub     |
+| `ACCENT_COLOR`      | `#2f7d58`              |
+| `ACCENT_COLOR_DARK` | `#4ade80`              |
+
+The Signal layout is fixed; these variables change the wordmark, group label, links, contact, and the
+light/dark accent. The page follows `prefers-color-scheme` automatically.
 
 ## License
 

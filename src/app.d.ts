@@ -8,6 +8,9 @@ declare global {
 				SITE_URL?: string;
 				GROUP_NAME?: string;
 				CONTACT_EMAIL?: string;
+				SOURCE_URL?: string;
+				ACCENT_COLOR?: string;
+				ACCENT_COLOR_DARK?: string;
 			};
 		}
 	}

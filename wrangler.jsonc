@@ -24,7 +24,10 @@
 		"SITE_NAME": "Wayfield Status",
 		"SITE_URL": "https://wayfield.dev",
 		"GROUP_NAME": "Wayfield services",
-		"CONTACT_EMAIL": "hello@wayfield.dev"
+		"CONTACT_EMAIL": "hello@wayfield.dev",
+		"SOURCE_URL": "https://github.com/WayfieldLabs/Scii-Status",
+		"ACCENT_COLOR": "#2f7d58",
+		"ACCENT_COLOR_DARK": "#4ade80"
 	},
 	"observability": {
 		"enabled": true

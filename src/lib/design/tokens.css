@@ -46,7 +46,7 @@
 }
 
 [data-app='scii'] {
-	color-scheme: light;
+	color-scheme: light dark;
 	--wf-bg: #fffcf7;
 	--wf-surface: #ffffff;
 	--wf-surface-soft: #f7f3ec;

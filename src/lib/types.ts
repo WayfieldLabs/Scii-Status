@@ -39,6 +39,16 @@ export interface StatusData {
 	groups: ServiceGroup[];
 }
 
+export interface SiteConfig {
+	name: string;
+	url: string;
+	groupName: string;
+	contactEmail: string;
+	sourceUrl: string;
+	accentLight: string;
+	accentDark: string;
+}
+
 export const emptyStatus: StatusData = {
 	lastUpdated: 'never',
 	uptime: '0.00',
