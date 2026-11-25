@@ -1,6 +1,8 @@
-name = "scii-checker"
+﻿name = "scii-checker"
 main = "worker.js"
 compatibility_date = "2026-11-16"
+workers_dev = false
+preview_urls = false
 
 [triggers]
 crons = ["* * * * *"]
