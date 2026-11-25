@@ -1,0 +1,32 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "scii",
+	"compatibility_date": "2026-11-16",
+	"workers_dev": false,
+	"preview_urls": false,
+	"triggers": {
+		"crons": []
+	},
+	"main": ".svelte-kit/cloudflare/_worker.js",
+	"assets": {
+		"directory": ".svelte-kit/cloudflare/assets",
+		"binding": "ASSETS",
+		"run_worker_first": true,
+		"not_found_handling": "404-page"
+	},
+	"r2_buckets": [
+		{
+			"binding": "R2_BUCKET",
+			"bucket_name": "scii-status"
+		}
+	],
+	"vars": {
+		"SITE_NAME": "Scii Status",
+		"SITE_URL": "https://wayfield.dev",
+		"GROUP_NAME": "Wayfield Status",
+		"CONTACT_EMAIL": "hello@wayfield.dev"
+	},
+	"observability": {
+		"enabled": true
+	}
+}

@@ -1,0 +1,13 @@
+name = "scii-checker"
+main = "worker.js"
+compatibility_date = "2026-11-16"
+
+[triggers]
+crons = ["* * * * *"]
+
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "scii-status"
+
+[vars]
+GROUP_NAME = "Wayfield Status"

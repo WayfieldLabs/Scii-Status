@@ -1,375 +1,94 @@
-# Scii — Setup Guide
+# Scii Status
 
-Deploy your own status page in ~10 minutes. No CLI, no servers.
+Open-source status pages by [Wayfield Labs](https://wayfield.dev). Live at
+[status.wayfield.dev](https://status.wayfield.dev).
 
-## What you'll have
-- `status.yourdomain.com` showing green/red badges
-- Updates every 60 seconds
-- Free on Cloudflare
-- GitHub Issues as incident management with active incident banner
-- Incident history timeline on your status page
-- 90-minute check history with per-service uptime bars
-- All data stored in git and R2
+Scii Status is a small status page for services you run. It shows current health, 90-check uptime
+history, response time, and optional GitHub incident history.
 
-## Table of Contents
-- [Part 1: Prerequisites (2 min)](#part-1-prerequisites-2-min)
-- [Part 2: Deploy Scii (7 steps)](#part-2-deploy-scii-7-steps)
-- [Part 3: Updating your services](#part-3-updating-your-services)
-- [Part 4: How GitHub Issues works](#part-4-how-github-issues-works)
-- [Part 5: Customize branding](#part-5-customize-branding)
-- [Part 6: Advanced customization](#part-6-advanced-customization)
-- [Troubleshooting](#troubleshooting)
-- [FAQ](#faq)
-- [Next Steps](#next-steps)
+## Architecture
 
----
+- **`scii`** — SvelteKit status page. Reads `status.json` from R2 and serves `/api/status`.
+- **`scii-checker`** — cron Worker. Checks the monitors, updates R2, and optionally pulls GitHub
+  incidents.
+- **R2** — stores `status.json`. One bucket, no database.
+- **Config** — a private JSON monitor list supplied to the checker as `MONITORS_JSON`, or a public
+  `MONITORS_URL`.
 
-## Part 1: Prerequisites (2 min)
+The status page and checker deploy separately so the page stays fast and the cron can run without
+touching the UI.
 
-### What you'll need
-1. **Cloudflare account** — Free tier is sufficient (100k requests/day)
-2. **GitHub account** — To store your configuration and manage incidents
-3. **Your service URLs** — Each service needs a `/health` endpoint that returns HTTP 200
-   - No redirects (301/302)
-   - No authentication required
-   - Returns within 30 seconds
+## Run locally
 
-### Test your health endpoints
 ```bash
-curl -I https://yourdomain.com/health
-# Should return: HTTP/1.1 200 OK
+pnpm install
+pnpm dev
 ```
 
----
+The page runs at `http://localhost:5180`. To see data, put a `status.json` in the local R2 bucket:
 
-## Part 2: Deploy Scii (7 steps)
+```bash
+pnpm exec wrangler r2 object put scii-status/status.json --file=./status.json --local --config wrangler.jsonc
+```
 
-### Step 1 — Create your config repo
+## Deploy
 
-1. Go to GitHub → New repository
-2. Name it `scii-config` (public recommended for transparency)
-3. Create file `monitors.json`:
+1. Create an R2 bucket named `scii-status`.
+2. Build and deploy the page:
+
+   ```bash
+   pnpm deploy
+   ```
+
+3. Deploy the checker:
+
+   ```bash
+   pnpm deploy:checker
+   ```
+
+4. Give the checker its monitor list. Either set a private `MONITORS_JSON` secret:
+
+   ```bash
+   cat monitors.json | pnpm exec wrangler secret put MONITORS_JSON --config checker/wrangler.toml
+   ```
+
+   or set `MONITORS_URL` to a raw JSON URL in `checker/wrangler.toml`.
+
+5. Add a custom domain to the `scii` Worker, such as `status.example.com`.
+
+6. Optional incidents: set `GITHUB_REPO` and a fine-grained `GITHUB_TOKEN` with Issues: Read on the
+   checker. Create issues with the `incident` label.
+
+## Config
 
 ```json
 [
-  {
-    "id": "website",
-    "name": "Website",
-    "url": "https://yourdomain.com"
-  },
-  {
-    "id": "api",
-    "name": "API",
-    "url": "https://api.yourdomain.com/health"
-  }
+	{
+		"id": "website",
+		"name": "Website",
+		"url": "https://example.com"
+	},
+	{
+		"id": "api",
+		"name": "API",
+		"url": "https://api.example.com/health"
+	}
 ]
 ```
 
-4. Commit the file
-5. Click the file → Raw → copy the URL
-   - Format: `https://raw.githubusercontent.com/YOURNAME/scii-config/main/monitors.json`
-   - **This is your `MONITORS_URL`**
+The checker requests each URL and treats a `2xx` response as up. Checks run every minute.
 
-### Step 2 — Create R2 bucket
+## Branding
 
-1. Cloudflare Dashboard → R2 → Create bucket
-2. Name: `scii-status`
-3. Click Create
+Set these variables on the `scii` Worker:
 
-**What is R2?** Cloudflare's S3-compatible object storage. Scii stores status history here.
+| Variable        | Default                |
+| --------------- | ---------------------- |
+| `SITE_NAME`     | `Scii Status`          |
+| `SITE_URL`      | `https://wayfield.dev` |
+| `GROUP_NAME`    | `Wayfield Status`      |
+| `CONTACT_EMAIL` | `hello@wayfield.dev`   |
 
-### Step 3 — Create Worker
+## License
 
-1. Cloudflare Dashboard → Workers & Pages → Create → Worker
-2. Name: `scii`
-3. Click Deploy → Edit code
-
-**What is a Worker?** Cloudflare's serverless compute platform. Scii runs here.
-
-4. Delete all existing code
-5. Get `worker.js` from: https://github.com/wayfield-labs/scii/blob/main/worker.js
-6. Paste the code into the editor
-7. Click Deploy
-
-### Step 4 — Connect storage and config
-
-1. Go to Worker → Settings → Variables
-2. Add R2 Bucket Binding:
-   - Variable name: `R2_BUCKET`
-   - Bucket: `scii-status`
-3. Add Environment Variable:
-   - Variable name: `MONITORS_URL`
-   - Value: Your raw GitHub URL from Step 1
-4. Click Save
-
-### Step 5 — Turn on checks
-
-1. Worker → Triggers → Add Cron Trigger
-2. Enter: `* * * * *` (runs every minute)
-3. Click Add
-
-**Why every minute?** This gives you 60-second update intervals. Change to `*/5 * * * *` for 5-minute intervals.
-
-### Step 6 — Test
-
-1. Open your Worker URL: `https://scii.YOURNAME.workers.dev`
-2. You'll see "Waiting for first check…"
-3. Wait 60 seconds
-4. Refresh — badges should appear
-
-### Step 7 — Add your domain (optional)
-
-1. Worker → Triggers → Custom Domains → Add
-2. Enter: `status.yourdomain.com`
-3. Click Add
-4. Wait 2-3 minutes for DNS propagation and SSL certificate
-
-**Done.** Your status page is live.
-
----
-
-## Part 3: Updating your services
-
-Edit `monitors.json` in GitHub → Commit. Scii picks up changes within 60 seconds. No redeploy needed.
-
-**Note:** GitHub raw URLs cache for ~5 minutes. If changes don't appear immediately, add `?v=2` to your `MONITORS_URL` to bypass cache.
-
----
-
-## Part 4: How GitHub Issues works
-
-Scii uses GitHub Issues as your incident communication system. It's free and emails users automatically.
-
-### A. One-time setup (3 minutes)
-
-1. In your `scii-config` repo, create folder `.github/ISSUE_TEMPLATE/`
-2. Add file `incident.md`:
-
-```yaml
----
-name: 🚨 Report an Outage
-about: Report a service problem
-title: "[INCIDENT] "
-labels: ["incident"]
----
-
-**Service:**
-**When did it start (UTC):**
-**What happens:**
-```
-
-### B. What your users do
-
-1. Visit your status page → see red "Down" badge
-2. Click footer link → Issues → New Issue → choose "Report an Outage"
-3. Fill the 3 fields → Submit
-4. Click "Subscribe" on the right → they get email updates
-
-### C. What you do
-
-1. Open issue → comment: "Investigating - 14:32 UTC"
-2. Post updates as comments (users get emailed automatically)
-3. When fixed, comment final update and Close issue
-4. Closed issue = permanent public incident history
-
-**You don't need a separate status notification service. GitHub handles all emails.**
-
-### Optional: Show active incidents on your status page
-
-1. Create a GitHub fine-grained token:
-   - Go to GitHub Settings → Developer settings → Personal access tokens → Fine-grained token
-   - Repository access: Select your `scii-config` repo
-   - Permissions: Issues → Read only
-   - Generate and copy the token
-
-2. Add to Worker → Settings → Variables:
-   - `GITHUB_REPO` = `YOURNAME/scii-config`
-   - `GITHUB_TOKEN` = Your fine-grained token
-
-3. Save and redeploy
-
-Scii will now show a yellow banner with open incident issues at the top of your status page. Close the issue → banner disappears.
-
----
-
-## Part 5: Customize branding
-
-### Via environment variables (no code editing)
-
-Go to Worker → Settings → Variables and add these:
-
-| Variable | Default | What it does |
-|----------|---------|-------------|
-| `SITE_NAME` | `WAYFIELD / Labs` | Brand name in the header and footer |
-| `SITE_URL` | `https://wayfield.dev` | Link in the footer |
-| `CONTACT_EMAIL` | `hello@wayfield.dev` | Contact email in the footer |
-| `GROUP_NAME` | `Wayfield Services` | Service group label on the status page |
-
-Click Save and Deploy — no code changes needed.
-
-### Changing accent colors
-
-To change the green (Operational) and amber (warning) colors, edit `worker.js`:
-- Green: `#22c55e` → used for "All Systems Operational" and OK status
-- Amber: `#f59e0b` → used for "Partial Outage", incidents, and warning states
-- Red: `#ef4444` → used for "Down" service status
-
----
-
-## Part 6: Advanced customization
-
-### Change check interval
-
-Edit the cron trigger:
-- Every minute: `* * * * *`
-- Every 5 minutes: `*/5 * * * *`
-- Every hour: `0 * * * *`
-
-### Custom health check timeout
-
-In `worker.js`, modify the timeout value in the fetch call (default is 30 seconds).
-
-### Multiple environments
-
-Create separate Workers for dev/staging/prod:
-- `scii-dev.yourdomain.com`
-- `scii-staging.yourdomain.com`
-- `status.yourdomain.com`
-
-Each with its own config repo and R2 bucket.
-
-### Custom status messages
-
-Add custom messages in `monitors.json`:
-
-```json
-{
-  "id": "website",
-  "name": "Website",
-  "url": "https://yourdomain.com",
-  "message": "Main landing page"
-}
-```
-
----
-
-## Troubleshooting
-
-### Setup issues
-
-**"Waiting for first check…" forever**
-- Check Worker → Triggers → Cron trigger exists
-- Check Variables → `MONITORS_URL` is the raw GitHub URL (must start with `https://raw.githubusercontent.com`)
-- Check Worker Logs for errors
-
-**Worker deployment fails**
-- Ensure you copied the entire `worker.js` file
-- Check for syntax errors in the code
-- Try deploying a simple "Hello World" Worker first
-
-**R2 bucket binding fails**
-- Verify bucket name matches exactly: `scii-status`
-- Check you have R2 permissions in your Cloudflare account
-
-### Runtime issues
-
-**All services show Down but they're up**
-- Your health URL must return HTTP 200, not 301/302 redirect
-- Test with: `curl -I https://your-url.com/health`
-- Check if your health endpoint requires authentication
-
-**Changes to monitors.json not showing**
-- GitHub raw URLs cache for ~5 minutes. Wait, or add `?v=2` to the URL
-- Check Worker Logs to see if it's fetching the new config
-
-**Custom domain error**
-- Wait 2-3 minutes for DNS propagation
-- Cloudflare provisions the SSL certificate automatically
-- Check your DNS settings point to Cloudflare
-
-**GitHub Issues not showing**
-- Verify `GITHUB_REPO` format: `owner/repo`
-- Check `GITHUB_TOKEN` has Issues: Read permission
-- Ensure the repo has the `incident` label
-
-### Performance issues
-
-**Worker hitting rate limits**
-- Free tier: 100k requests/day (Scii uses ~1,440/day)
-- If monitoring many services frequently, consider upgrading to Paid tier
-- Increase check interval to reduce requests
-
-**Slow page loads**
-- Check R2 bucket location (choose region closest to your users)
-- Consider enabling Cloudflare caching for static assets
-
----
-
-## FAQ
-
-**Cost?**
-$0. Cloudflare Workers free = 100k requests/day. Scii uses ~1,440/day. R2 free tier = 10GB storage/month.
-
-**Do my users need GitHub?**
-Yes, for subscribing to incident updates (free account). They can still view the status page without an account.
-
-**Can I use this for clients?**
-Yes. MIT licensed. Keep the LICENSE file. You can customize branding for each client.
-
-**How do I back up?**
-Your config is in GitHub. Status history is in R2 (`status.json`) and in GitHub Issues. Both are automatically versioned.
-
-**What if Cloudflare goes down?**
-Your status page will be unavailable, but your monitoring history in R2 and GitHub Issues remains intact.
-
-**Can I monitor services behind authentication?**
-Not directly. Create a public health endpoint that checks the authenticated service internally.
-
-**How many services can I monitor?**
-Practically unlimited. Each check is a single HTTP request. With 1-minute intervals, 100 services = 100k requests/day (free tier limit).
-
-**Can I get alerts beyond GitHub Issues?**
-You can add webhooks to GitHub Issues to send alerts to Slack, Discord, etc. via third-party services.
-
-**Is my data private?**
-- Config repo: Public by default (can be private)
-- R2 bucket: Private by default
-- GitHub Issues: Public by default (can be private repo)
-
----
-
-## Next Steps
-
-### Security considerations
-- Use a private config repo if services are sensitive
-- Rotate GitHub tokens periodically
-- Enable 2FA on your Cloudflare and GitHub accounts
-- Consider IP whitelisting for your health endpoints
-
-### Monitoring the monitoring
-- Set up a separate external monitor to check your status page
-- Create a GitHub Action to alert if Scii Worker stops running
-- Monitor R2 storage usage
-
-### Scaling
-- For enterprise needs, consider Cloudflare Workers Paid tier for higher limits
-- Use Cloudflare Durable Objects for real-time updates
-- Add analytics to track status page visitors
-
-### Integration ideas
-- Add uptime percentage calculations
-- Create weekly/monthly incident reports
-- Integrate with PagerDuty or other on-call systems
-- Add SMS alerts via GitHub Issue webhooks
-
----
-
-## Need help?
-
-- GitHub: https://github.com/wayfield-labs/scii
-- Issues: https://github.com/wayfield-labs/scii/issues
-- Email: hello@wayfield.dev
-
----
-
-© 2026 Wayfield Labs. Scii is MIT licensed.
+MIT. See [LICENSE](./LICENSE).

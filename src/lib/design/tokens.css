@@ -1,0 +1,61 @@
+/* Scii Status design tokens */
+:root {
+	--wf-font-display: 'Outfit', 'Segoe UI', ui-sans-serif, system-ui, sans-serif;
+	--wf-font-ui: 'Outfit', 'Segoe UI', ui-sans-serif, system-ui, sans-serif;
+	--wf-font-body: 'Inter', 'Segoe UI', ui-sans-serif, system-ui, sans-serif;
+	--wf-font-mono: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+
+	--wf-bg: #fffcf7;
+	--wf-bg-deep: #f2ede4;
+	--wf-surface: #ffffff;
+	--wf-surface-soft: #f7f3ec;
+	--wf-ink: #0e0f0c;
+	--wf-ink-soft: #3c3f38;
+	--wf-muted: #6c7168;
+	--wf-line: #e6e1d7;
+	--wf-line-strong: #d5cec1;
+	--wf-accent: #232327;
+	--wf-accent-hover: #3a3a40;
+	--wf-accent-soft: #efeae2;
+	--wf-accent-ink: #ffffff;
+
+	--wf-success: #2f7d58;
+	--wf-success-soft: #e5f2ea;
+	--wf-warning: #a56a16;
+	--wf-warning-soft: #f8eedc;
+	--wf-danger: #b4442e;
+	--wf-danger-soft: #f8e6e1;
+
+	--wf-radius-sm: 8px;
+	--wf-radius-md: 12px;
+	--wf-radius-lg: 16px;
+	--wf-radius-pill: 999px;
+
+	--wf-space-1: 4px;
+	--wf-space-2: 8px;
+	--wf-space-3: 12px;
+	--wf-space-4: 16px;
+	--wf-space-5: 24px;
+	--wf-space-6: 32px;
+	--wf-space-7: 48px;
+	--wf-space-8: 64px;
+
+	--wf-control-height: 40px;
+	--wf-page-width: 1080px;
+	--wf-shadow: 0 24px 70px rgba(28, 27, 25, 0.12);
+}
+
+[data-app='scii'] {
+	color-scheme: light;
+	--wf-bg: #fffcf7;
+	--wf-surface: #ffffff;
+	--wf-surface-soft: #f7f3ec;
+	--wf-ink: #0e0f0c;
+	--wf-muted: #6c7168;
+	--wf-line: #e6e1d7;
+	--wf-line-strong: #d5cec1;
+	--wf-accent: #232327;
+	--wf-success: #2f7d58;
+	--wf-warning: #a56a16;
+	--wf-danger: #b4442e;
+}

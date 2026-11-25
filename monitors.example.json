@@ -1,0 +1,12 @@
+[
+	{
+		"id": "website",
+		"name": "Website",
+		"url": "https://example.com"
+	},
+	{
+		"id": "api",
+		"name": "API",
+		"url": "https://api.example.com/health"
+	}
+]
