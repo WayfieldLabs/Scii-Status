@@ -78,10 +78,7 @@
 	<header class="site-header">
 		<a class="brand" href={resolve('/')} aria-label={`${site.name} home`}>
 			<img src="/favicon.svg" alt="" width="28" height="28" />
-			<span class="brand-text">
-				<strong>{site.name}</strong>
-				<small>Powered by Scii Status</small>
-			</span>
+			<span class="brand-name">{site.name}</span>
 		</a>
 		<a class="github" href={github} rel="external">
 			GitHub
@@ -201,23 +198,12 @@
 		gap: 10px;
 	}
 
-	.brand-text {
-		display: flex;
-		flex-direction: column;
-		line-height: 1.1;
-	}
-
-	.brand-text strong {
+	.brand-name {
 		font-family: var(--wf-font-display);
 		font-size: 17px;
 		font-weight: 600;
 		letter-spacing: -0.01em;
-	}
-
-	.brand-text small {
-		color: var(--wf-muted);
-		font-family: var(--wf-font-body);
-		font-size: 10px;
+		line-height: 1.1;
 	}
 
 	.github {
