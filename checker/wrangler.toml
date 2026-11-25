@@ -12,4 +12,4 @@ binding = "R2_BUCKET"
 bucket_name = "scii-status"
 
 [vars]
-GROUP_NAME = "Wayfield Status"
+GROUP_NAME = "Wayfield services"

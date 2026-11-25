@@ -67,10 +67,10 @@
 </script>
 
 <svelte:head>
-	<title>{site.name} · {site.groupName}</title>
+	<title>{site.name} · Live status</title>
 	<meta
 		name="description"
-		content={`Live status, uptime, and incident history for ${site.groupName}.`}
+		content={`Live status, uptime, and incident history for ${site.groupName}. Powered by Scii Status.`}
 	/>
 </svelte:head>
 
@@ -80,7 +80,7 @@
 			<img src="/favicon.svg" alt="" width="28" height="28" />
 			<span class="brand-text">
 				<strong>{site.name}</strong>
-				<small>by Wayfield Labs</small>
+				<small>Powered by Scii Status</small>
 			</span>
 		</a>
 		<a class="github" href={github} rel="external">
@@ -178,10 +178,10 @@
 	<footer class="site-footer">
 		<span class="footer-brand">{site.name}</span>
 		<span>
-			<a href={github} rel="external">Open source</a>
-			· <a href={`mailto:${site.contactEmail}`} rel="external">{site.contactEmail}</a>
+			Powered by <a href={github} rel="external">Scii Status</a>
+			· <a href={site.url} rel="external">Wayfield</a>
 		</span>
-		<a href={site.url} rel="external">A Wayfield Labs product ↗</a>
+		<a href={`mailto:${site.contactEmail}`} rel="external">{site.contactEmail}</a>
 	</footer>
 </PageShell>
 

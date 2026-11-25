@@ -21,9 +21,9 @@
 		}
 	],
 	"vars": {
-		"SITE_NAME": "Scii Status",
+		"SITE_NAME": "Wayfield Status",
 		"SITE_URL": "https://wayfield.dev",
-		"GROUP_NAME": "Wayfield Status",
+		"GROUP_NAME": "Wayfield services",
 		"CONTACT_EMAIL": "hello@wayfield.dev"
 	},
 	"observability": {

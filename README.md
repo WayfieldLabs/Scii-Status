@@ -1,7 +1,7 @@
 # Scii Status
 
-Open-source status pages by [Wayfield Labs](https://wayfield.dev). Live at
-[status.wayfield.dev](https://status.wayfield.dev).
+Open-source status pages by [Wayfield Labs](https://wayfield.dev).
+[Wayfield Status](https://status.wayfield.dev) runs on Scii Status.
 
 Scii Status is a small status page for services you run. It shows current health, 90-check uptime
 history, response time, and optional GitHub incident history.
@@ -86,7 +86,7 @@ Set these variables on the `scii` Worker:
 | --------------- | ---------------------- |
 | `SITE_NAME`     | `Scii Status`          |
 | `SITE_URL`      | `https://wayfield.dev` |
-| `GROUP_NAME`    | `Wayfield Status`      |
+| `GROUP_NAME`    | `Status`             |
 | `CONTACT_EMAIL` | `hello@wayfield.dev`   |
 
 ## License
